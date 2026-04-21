@@ -1,0 +1,22 @@
+{
+  "folders": [
+    {
+      "name": "transparent-governance (root)",
+      "path": "."
+    },
+    {
+      "name": "apps",
+      "path": "apps"
+    },
+    {
+      "name": "packages",
+      "path": "packages"
+    }
+  ],
+  "settings": {
+    "files.exclude": {
+      "**/node_modules": true,
+      "**/.git": true
+    }
+  }
+}

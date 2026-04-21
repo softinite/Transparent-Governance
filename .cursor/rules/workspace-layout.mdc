@@ -1,0 +1,19 @@
+---
+description: Monorepo layout — where apps and shared packages live
+alwaysApply: true
+---
+
+# Multi-project workspace layout
+
+## Directories
+
+- **`apps/`** — Deployable applications (web, API, workers, mobile shells). One subdirectory per app (e.g. `apps/web`, `apps/api`).
+- **`packages/`** — Shared libraries (domain types, clients, UI kit, validation). Prefer small, focused packages over one catch-all unless the stack dictates otherwise.
+
+## Conventions
+
+- **New service or app**: add under `apps/<name>` with its own build/tooling as needed.
+- **Shared code used by more than one app**: extract to `packages/<name>`.
+- **Root** — Workspace-level config only (workspace file, CI, tooling that applies to everything). Avoid app logic at the repository root.
+
+If the tech stack is not chosen yet, keep placeholders until the first app is scaffolded; do not invent framework-specific files preemptively.

@@ -1,0 +1,30 @@
+---
+description: Domain model and invariants — transparent governance, funds, and spending
+alwaysApply: true
+---
+
+# Business context: transparent governance
+
+## Product intent
+
+This system supports **responsible governance** by **maximizing transparency of spending**. Every financial move should be explainable and traceable to explicit choices, not opaque pools of money.
+
+## Core domain rules (non-negotiable)
+
+1. **Decision → fund**  
+   Each **governance decision** is tied to **one dedicated fund** (or a clearly defined fund set if the product later allows splitting; default assumption: one primary fund per decision unless the user specifies otherwise).
+
+2. **Spend → decisions**  
+   Any **money spent** must be **linked to a set of decisions** that authorize the expenditure. Modeling and APIs should make this link required, not optional.
+
+3. **Fund source of truth**  
+   Spend may **only** draw from funds **tied to the decisions** that justify the spend. Do not model or implement “general” expenditure that bypasses decision linkage unless the user explicitly asks for an exception workflow (and then document it as such).
+
+## Implications for design and code
+
+- Favor **audit trails**: who approved, which decision(s), which fund(s), amount, timestamp, and references to evidence (invoices, contracts, votes).
+- **Authorization** checks should enforce: requested fund ⊆ funds allowed by the linked decisions for that transaction.
+- **Reporting** should support “show all spend for decision X” and “show which decisions funded payment Y.”
+- Use clear names in the codebase: `decision`, `fund`, `spend` / `expenditure`, `allocation`, `link` / `justification` — align with this language.
+
+When requirements are ambiguous, choose the option that **increases traceability** and **reduces unattributed spending**.
