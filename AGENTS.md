@@ -19,6 +19,12 @@ Detailed wording and implementation guidance live in **`.cursor/rules/business-c
 
 See **`.cursor/rules/workspace-layout.mdc`** for conventions when adding projects.
 
+## Architecture
+
+Code follows **onion (ports and adapters) architecture**: business logic and port interfaces live in **`packages/`**; **`apps/`** and adapter code implement those ports and handle I/O. Core must not depend on concrete implementations.
+
+See **`.cursor/rules/onion-architecture.mdc`** for layering and dependency rules.
+
 ## Opening in Cursor / VS Code
 
 Open **`transparent-governance.code-workspace`** for a multi-root workspace (root + `apps` + `packages`).

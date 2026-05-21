@@ -1,0 +1,40 @@
+---
+description: Onion architecture — core business logic in packages, I/O in outer layers
+alwaysApply: true
+---
+
+# Onion architecture
+
+Follow **ports and adapters** (onion / hexagonal) layering. Dependencies point **inward** only.
+
+## Layers
+
+1. **Core (`packages/`)** — Domain models, use cases, invariants, and **port interfaces** (abstract contracts for persistence, messaging, external services). Pure business logic; no knowledge of how I/O is done.
+
+2. **Adapters (`apps/`, adapter packages)** — Concrete implementations of ports: database repos, HTTP handlers, queue consumers, file storage, third-party SDK wrappers. Responsible for all interaction with specific I/O.
+
+3. **Composition root (`apps/`)** — Wire core use cases to adapter implementations at startup (dependency injection).
+
+## Dependency rules (non-negotiable)
+
+- **`packages/` must not import from `apps/`** or from adapter/infrastructure code.
+- **Core must not import** database drivers, ORMs, HTTP frameworks, cloud SDKs, filesystem APIs, or other concrete I/O libraries.
+- **Adapters depend on core**, not the reverse. Core defines interfaces; adapters implement them.
+- When adding a new external dependency, default to placing it in an adapter layer, not in core.
+
+## What belongs where
+
+| Core (`packages/`) | Adapters (`apps/`, infra packages) |
+|---|---|
+| `Decision`, `Fund`, `Spend` entities | SQL/NoSQL repository implementations |
+| Authorization and fund-allocation rules | REST/GraphQL route handlers |
+| Use cases (`RecordSpend`, `ApproveDecision`) | Message queue publishers/consumers |
+| Port interfaces (`DecisionRepository`, `AuditLog`) | Framework middleware, config, wiring |
+
+## When scaffolding
+
+- New **domain concept or rule** → `packages/<domain-or-use-case>`.
+- New **deployable surface or I/O** → `apps/<name>` or a dedicated adapter package under `packages/` that implements core ports (never the other way around).
+- If core needs data, add or extend a **port interface** in core; implement it in an adapter.
+
+When requirements are ambiguous, choose the option that **keeps business logic testable without I/O** and **prevents leakage of implementation details into core**.
