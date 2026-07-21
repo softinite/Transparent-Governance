@@ -7,34 +7,61 @@ alwaysApply: true
 
 Follow **ports and adapters** (onion / hexagonal) layering. Dependencies point **inward** only.
 
+## Architectural roles, not folder names
+
+The terms **core**, **application**, **adapter**, and **infrastructure** describe responsibilities and dependency direction. They do **not** require directories with those names. In particular, "infrastructure" does not mean that technology-specific code must live in a folder named `infrastructure/`.
+
+A deployable app may contain its UI framework, HTTP handlers, database adapters, and composition root in whatever folder structure best fits that technology. A package may also contain an adapter when it is intentionally shared. Classify code by what it knows and depends on, not by its path:
+
+- Code that expresses business rules without knowing how data is stored, transported, or displayed is **inner/core code**.
+- Code that coordinates a business operation through core-defined ports is **application/use-case code**.
+- Code that translates between a technology and a core contract is an **adapter**.
+- Code that selects concrete implementations and wires them together is the **composition root**.
+
+Folder names may communicate these roles, but folder placement alone never makes a dependency Onion-compliant. The decisive rule is that source-code dependencies point toward business policy: outer code may import inner code, while inner code must not import outer code.
+
+## Coding guidelines
+
+- Keep **business logic plain** in core: deterministic, framework-agnostic code with no transport, persistence, or UI concerns.
+- Express integrations as **ports (interfaces)** owned by the inner layer that needs the capability; define domain-oriented method names instead of technology-oriented APIs.
+- Put all **technology-specific implementation** behind adapters (DB, HTTP, queue, cache, filesystem, UI frameworks, SDKs), regardless of the adapters' folder names.
+- Make implementations **depend on core contracts**; core must never depend on implementation packages.
+- Keep mapping at boundaries: convert framework/ORM/request models to domain types in adapters before calling core use cases.
+- Keep side effects outside core: orchestrate I/O in adapters and composition roots, not inside entities or use cases.
+- Test core with fast unit tests (no network/files/DB); test adapters with integration tests against real technologies.
+
 ## Layers
 
-1. **Core (`packages/`)** — Domain models, use cases, invariants, and **port interfaces** (abstract contracts for persistence, messaging, external services). Pure business logic; no knowledge of how I/O is done.
+1. **Core (typically shared code under `packages/`)** — Domain models, use cases, invariants, and **port interfaces** (abstract contracts for persistence, messaging, external services). Pure business logic; no knowledge of how I/O is done.
 
-2. **Adapters (`apps/`, adapter packages)** — Concrete implementations of ports: database repos, HTTP handlers, queue consumers, file storage, third-party SDK wrappers. Responsible for all interaction with specific I/O.
+2. **Adapters (commonly inside `apps/` or shared adapter packages)** — Concrete implementations of ports: database repositories, HTTP handlers, queue consumers, file storage, UI components, and third-party SDK wrappers. Responsible for translating between a technology and the core. No particular directory name is required.
 
-3. **Composition root (`apps/`)** — Wire core use cases to adapter implementations at startup (dependency injection).
+3. **Composition root (inside each deployable app)** — Wire core use cases to adapter implementations at startup (dependency injection). It belongs near application startup, whether or not a `composition`, `bootstrap`, or `infrastructure` folder exists.
 
 ## Dependency rules (non-negotiable)
 
-- **`packages/` must not import from `apps/`** or from adapter/infrastructure code.
-- **Core must not import** database drivers, ORMs, HTTP frameworks, cloud SDKs, filesystem APIs, or other concrete I/O libraries.
+- **Shared packages must not import from deployable apps.** Apps are composition boundaries, not reusable dependencies.
+- **Core modules must not import** adapter modules, database drivers, ORMs, HTTP/UI frameworks, cloud SDKs, filesystem APIs, or other concrete I/O libraries.
 - **Adapters depend on core**, not the reverse. Core defines interfaces; adapters implement them.
 - When adding a new external dependency, default to placing it in an adapter layer, not in core.
+- Do not infer dependency direction from directories. Verify imports and ownership of interfaces instead.
+
+A package under `packages/` is not automatically core. A deliberately shared technology adapter may live there, but it must be identified as an adapter, depend inward on the relevant core package, and remain replaceable. Conversely, moving framework code into a folder named `core` does not make it inner-layer code.
 
 ## What belongs where
 
-| Core (`packages/`) | Adapters (`apps/`, infra packages) |
+| Inner business policy | Outer technology-specific code |
 |---|---|
 | `Decision`, `Fund`, `Spend` entities | SQL/NoSQL repository implementations |
 | Authorization and fund-allocation rules | REST/GraphQL route handlers |
 | Use cases (`RecordSpend`, `ApproveDecision`) | Message queue publishers/consumers |
 | Port interfaces (`DecisionRepository`, `AuditLog`) | Framework middleware, config, wiring |
+| Domain values and errors | React components and view-model mapping |
 
 ## When scaffolding
 
 - New **domain concept or rule** → `packages/<domain-or-use-case>`.
-- New **deployable surface or I/O** → `apps/<name>` or a dedicated adapter package under `packages/` that implements core ports (never the other way around).
+- New **deployable surface or I/O** → normally `apps/<name>` or a deliberately shared adapter package that implements core ports (never the other way around). It does not need an `infrastructure/` directory.
 - If core needs data, add or extend a **port interface** in core; implement it in an adapter.
 
 When requirements are ambiguous, choose the option that **keeps business logic testable without I/O** and **prevents leakage of implementation details into core**.

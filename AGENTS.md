@@ -23,6 +23,8 @@ See **`.cursor/rules/workspace-layout.mdc`** for conventions when adding project
 
 Code follows **onion (ports and adapters) architecture**: business logic and port interfaces live in **`packages/`**; **`apps/`** and adapter code implement those ports and handle I/O. Core must not depend on concrete implementations.
 
+Coding guideline: keep business logic plain and technology-agnostic in core, while technology-specific code depends on and implements core-defined ports. These are architectural roles, not prescribed folder names; an `infrastructure/` directory is neither required nor sufficient.
+
 See **`.cursor/rules/onion-architecture.mdc`** for layering and dependency rules.
 
 ## Opening in Cursor / VS Code

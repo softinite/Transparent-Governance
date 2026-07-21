@@ -1,0 +1,30 @@
+.app-shell {
+  max-width: 840px;
+  margin: 2.5rem auto;
+}
+
+.intro-copy {
+  margin: 0 0 1rem;
+  color: #4b5563;
+}
+
+.controls {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.control-input {
+  flex: 1;
+  min-width: 260px;
+}
+
+.control-input .p-inputtext {
+  width: 100%;
+}
+
+.hint {
+  margin: 1rem 0 0;
+  color: #1f2937;
+}
