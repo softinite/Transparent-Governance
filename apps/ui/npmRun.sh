@@ -10,4 +10,9 @@ SCRIPT="$1"
 shift
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+if [[ "${SCRIPT}" == "dev" ]]; then
+  export NODE_DOCKER_PORT="${VITE_PORT:-5173}"
+fi
+
 exec "${ROOT}/infrastructure/docker/node.sh" npm run "${SCRIPT}" "$@"

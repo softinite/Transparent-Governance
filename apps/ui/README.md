@@ -15,8 +15,11 @@ PrimeReact v5-based UI starter for Transparent Governance.
 ## Run dev server (through Docker)
 
 ```bash
-./npmRun.sh dev -- --host 0.0.0.0 --port 5173
+./npmRun.sh dev
 ```
+
+The UI is available at <http://localhost:5173>. Set `VITE_PORT` to use a
+different host port, for example `VITE_PORT=5174 ./npmRun.sh dev`.
 
 ## Build
 

@@ -3,7 +3,14 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
-exec docker run --rm \
+DOCKER_ARGS=(--rm)
+
+if [[ -n "${NODE_DOCKER_PORT:-}" ]]; then
+  DOCKER_ARGS+=(-p "${NODE_DOCKER_PORT}:${NODE_DOCKER_PORT}")
+  DOCKER_ARGS+=(-e "VITE_PORT=${NODE_DOCKER_PORT}")
+fi
+
+exec docker run "${DOCKER_ARGS[@]}" \
   -u "$(id -u):$(id -g)" \
   -v "${ROOT}:/workspace" \
   -w /workspace \
