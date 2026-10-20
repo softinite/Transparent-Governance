@@ -1,0 +1,3 @@
+1. Validate the API works and it follows Onion architecture. Set up CRUD operations for states
+1. Set up Auth0 authentication - make sure to abstract Authentication service using onion principles
+1. Set up OpenFGA authorization - make sure to abstract Authorization service using onion principles
